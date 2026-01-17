@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Pencil, Trash2 } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, History } from "lucide-react";
+import Link from "next/link";
 import { Equipment } from "@/lib/types";
 import { EquipmentDialog } from "@/components/EquipmentDialog";
 
@@ -84,6 +85,11 @@ export default function ClinicEquipmentPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
+                                            <Button size="icon" variant="ghost" title="Lịch sử thiết bị" asChild>
+                                                <Link href={`/clinic/equipment/${eq.id}`}>
+                                                    <History className="h-4 w-4 text-purple-600" />
+                                                </Link>
+                                            </Button>
                                             <Button size="icon" variant="ghost" onClick={() => handleEdit(eq)}>
                                                 <Pencil className="h-4 w-4 text-blue-600" />
                                             </Button>

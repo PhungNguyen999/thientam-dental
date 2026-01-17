@@ -26,34 +26,52 @@ import {
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { isSameDay, isSameWeek, isSameMonth, parseISO } from "date-fns";
 
 export default function AdminDashboard() {
     const { requests, clinics } = useStore();
+    const [period, setPeriod] = useState("month"); // day, week, month, all
 
-    // Calculate stats
-    const totalRequests = requests.length;
-    const pendingRequests = requests.filter(r => r.status === 'New' || r.status === 'Pending_Approval').length;
-    const completedRequests = requests.filter(r => r.status === 'Completed').length;
-    const totalCost = requests.reduce((acc, curr) => acc + (curr.repairCost || 0), 0);
+    // Filter requests based on time period
+    const filteredRequests = requests.filter(r => {
+        if (period === "all") return true;
+
+        const date = new Date(r.createDate);
+        const now = new Date();
+
+        if (period === "day") return isSameDay(date, now);
+        if (period === "week") return isSameWeek(date, now, { weekStartsOn: 1 }); // Monday start
+        if (period === "month") return isSameMonth(date, now);
+
+        return true;
+    });
+
+    // Calculate stats based on filtered requests
+    const totalRequests = filteredRequests.length;
+    const pendingRequests = filteredRequests.filter(r => r.status === 'New' || r.status === 'Pending_Approval').length;
+    const completedRequests = filteredRequests.filter(r => r.status === 'Completed').length;
+    const totalCost = filteredRequests.reduce((acc, curr) => acc + (curr.repairCost || 0), 0);
 
     // Chart Data: Status Distribution
     const statusData = [
-        { name: 'Mới/Chờ duyệt', value: requests.filter(r => ['New', 'Pending_Approval'].includes(r.status)).length, color: '#f59e0b' },
-        { name: 'Đã duyệt/Đang sửa', value: requests.filter(r => ['Approved', 'In_Progress'].includes(r.status)).length, color: '#6366f1' },
-        { name: 'Hoàn thành', value: requests.filter(r => r.status === 'Completed').length, color: '#10b981' },
-        { name: 'Từ chối', value: requests.filter(r => r.status === 'Rejected').length, color: '#ef4444' },
+        { name: 'Mới/Chờ duyệt', value: filteredRequests.filter(r => ['New', 'Pending_Approval'].includes(r.status)).length, color: '#f59e0b' },
+        { name: 'Đã duyệt/Đang sửa', value: filteredRequests.filter(r => ['Approved', 'In_Progress'].includes(r.status)).length, color: '#6366f1' },
+        { name: 'Hoàn thành', value: filteredRequests.filter(r => r.status === 'Completed').length, color: '#10b981' },
+        { name: 'Từ chối', value: filteredRequests.filter(r => r.status === 'Rejected').length, color: '#ef4444' },
     ];
 
     // Clinic Stats logic (highest/lowest requests)
     const clinicStats = clinics.map(clinic => ({
         name: clinic.name,
-        count: requests.filter(r => r.clinicId === clinic.id).length
+        count: filteredRequests.filter(r => r.clinicId === clinic.id).length
     })).sort((a, b) => b.count - a.count);
 
     const mostActiveClinic = clinicStats[0];
 
     // Equipment Stats logic (most frequently repaired)
-    const equipmentStats = requests.reduce((acc, curr) => {
+    const equipmentStats = filteredRequests.reduce((acc, curr) => {
         const name = curr.equipmentName;
         acc[name] = (acc[name] || 0) + 1;
         return acc;
@@ -68,9 +86,20 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* ... existing header ... */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <h2 className="text-3xl font-bold tracking-tight text-blue-950 dark:text-blue-50">Tổng quan hệ thống</h2>
                 <div className="flex items-center space-x-2">
+                    <Select value={period} onValueChange={setPeriod}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Chọn thời gian" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="day">Hôm nay</SelectItem>
+                            <SelectItem value="week">Tuần này</SelectItem>
+                            <SelectItem value="month">Tháng này</SelectItem>
+                            <SelectItem value="all">Tất cả</SelectItem>
+                        </SelectContent>
+                    </Select>
                     <Button variant="outline" className="hidden sm:flex">Xuất báo cáo</Button>
                     <Button className="bg-blue-600 hover:bg-blue-700">Tải lại dữ liệu</Button>
                 </div>

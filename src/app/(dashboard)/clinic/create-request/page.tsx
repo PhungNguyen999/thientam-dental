@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
 import { RepairRequest } from "@/lib/types";
+import { FileUploader } from "@/components/FileUploader";
 
 export default function CreateRequestPage() {
     const router = useRouter();
@@ -18,6 +19,8 @@ export default function CreateRequestPage() {
 
     const [selectedEquipmentId, setSelectedEquipmentId] = useState("");
     const [issue, setIssue] = useState("");
+    const [estimatedCost, setEstimatedCost] = useState<number | "">("");
+    const [images, setImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Filter equipment for this clinic
@@ -40,7 +43,8 @@ export default function CreateRequestPage() {
             equipmentId: selectedEquipmentId,
             equipmentName: selectedEq?.name || "Unknown",
             issueDescription: issue,
-            imagesBefore: [], // Add image upload later if needed
+            imagesBefore: images,
+            estimatedCost: estimatedCost ? Number(estimatedCost) : undefined,
             status: "New",
         };
 
@@ -92,6 +96,22 @@ export default function CreateRequestPage() {
                                 onChange={(e) => setIssue(e.target.value)}
                                 required
                             />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="estimatedCost">Chi phí dự kiến (VNĐ)</Label>
+                            <Input
+                                id="estimatedCost"
+                                type="number"
+                                placeholder="Nhập chi phí dự kiến (nếu có)..."
+                                value={estimatedCost}
+                                onChange={(e) => setEstimatedCost(e.target.value ? Number(e.target.value) : "")}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Hình ảnh / Video minh chứng</Label>
+                            <FileUploader onUploadComplete={setImages} />
                         </div>
 
                         <div className="flex justify-end space-x-2 pt-4">

@@ -44,4 +44,5 @@ export interface RepairRequest {
   completionDate?: string;
   imagesAfter?: string[];
   technicianNotes?: string;
+  estimatedCost?: number; // Cost estimated by technician before approval
 }

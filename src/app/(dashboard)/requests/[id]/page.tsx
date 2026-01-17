@@ -4,13 +4,12 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RepairStatusBadge } from "@/components/RepairStatusBadge";
-import { ArrowLeft, CheckCircle, XCircle, Clock, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Save, FileVideo, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { RepairStatus } from "@/lib/types";
 
@@ -27,11 +26,13 @@ export default function RequestDetailPage() {
     const [cost, setCost] = useState<number | "">(request?.repairCost || "");
     const [warranty, setWarranty] = useState<number | "">(request?.warrantyMonths || "");
     const [technicianNotes, setTechnicianNotes] = useState(request?.technicianNotes || "");
+    const [estimatedCost, setEstimatedCost] = useState<number | "">(request?.estimatedCost || "");
 
     if (!request || !currentUser) return <div className="p-8">Không tìm thấy phiếu yêu cầu.</div>;
 
     const isAdmin = currentUser.role === "Admin";
     const isOwner = currentUser.clinicId === request.clinicId;
+    const canComplete = isAdmin || isOwner || currentUser.role === 'Technician';
 
     const handleStatusChange = (newStatus: RepairStatus) => {
         setLoading(true);
@@ -39,7 +40,6 @@ export default function RequestDetailPage() {
             updateRequest(id, {
                 status: newStatus,
                 approverUsername: newStatus === 'Approved' ? currentUser.username : request.approverUsername,
-                // If changing to In_Progress or doing logic, add here
             });
             setLoading(false);
             router.refresh();
@@ -54,12 +54,23 @@ export default function RequestDetailPage() {
                 repairCost: Number(cost),
                 warrantyMonths: Number(warranty),
                 technicianNotes: technicianNotes,
-                completionDate: new Date().toISOString()
+                completionDate: request.completionDate || new Date().toISOString()
             });
             setLoading(false);
             router.push(isAdmin ? '/admin' : '/clinic');
         }, 500);
     }
+
+    const handleSaveEstimate = () => {
+        setLoading(true);
+        setTimeout(() => {
+            updateRequest(id, {
+                estimatedCost: Number(estimatedCost)
+            });
+            setLoading(false);
+            router.refresh();
+        }, 500);
+    };
 
     return (
         <div className="max-w-3xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -102,7 +113,30 @@ export default function RequestDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Completion Details - Visible if Completed or if User is Entering Completion */}
+                            {request.imagesBefore && request.imagesBefore.length > 0 && (
+                                <div>
+                                    <Label className="text-muted-foreground mb-1 block">Hình ảnh / Video minh chứng</Label>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {request.imagesBefore.map((url, idx) => (
+                                            <div key={idx} className="relative group border rounded-md overflow-hidden bg-slate-100 aspect-square flex items-center justify-center cursor-pointer" onClick={() => window.open(url, '_blank')}>
+                                                {url.match(/\.(mp4|webm|mov)$/i) ? (
+                                                    <>
+                                                        <video src={url} className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                                                            <FileVideo className="h-8 w-8 text-white opacity-80" />
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img src={url} alt="Evidence" className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Completion Details */}
                             {(request.status === 'Completed' || (request.status === 'Approved' || request.status === 'In_Progress')) && (
                                 <div className="border-t pt-4 space-y-4">
                                     <h3 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center">
@@ -117,7 +151,7 @@ export default function RequestDetailPage() {
                                                 placeholder="0"
                                                 value={cost}
                                                 onChange={(e) => setCost(Number(e.target.value))}
-                                                disabled={request.status === 'Completed' && !isOwner && !isAdmin} // Only disable if not owner/admin
+                                                disabled={request.status === 'Completed' && !isOwner && !isAdmin}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -127,7 +161,7 @@ export default function RequestDetailPage() {
                                                 placeholder="0"
                                                 value={warranty}
                                                 onChange={(e) => setWarranty(Number(e.target.value))}
-                                                disabled={request.status === 'Completed' && !isOwner && !isAdmin}
+                                                disabled={request.status === 'Completed' && !canComplete}
                                             />
                                         </div>
                                     </div>
@@ -137,7 +171,7 @@ export default function RequestDetailPage() {
                                             placeholder="Chi tiết linh kiện thay thế..."
                                             value={technicianNotes}
                                             onChange={(e) => setTechnicianNotes(e.target.value)}
-                                            disabled={request.status === 'Completed' && !isOwner && !isAdmin}
+                                            disabled={request.status === 'Completed' && !canComplete}
                                         />
                                     </div>
                                 </div>
@@ -153,6 +187,35 @@ export default function RequestDetailPage() {
                             <CardTitle className="text-lg">Tác vụ</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
+                            {/* Estimated Cost Section */}
+                            {(isAdmin || currentUser.role === 'Technician' || request.estimatedCost) && (
+                                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 mb-4">
+                                    <div className="flex items-center gap-2 mb-2 text-blue-800 dark:text-blue-300 font-semibold">
+                                        <DollarSign className="h-4 w-4" />
+                                        Chi phí dự kiến
+                                    </div>
+
+                                    {(isAdmin || currentUser.role === 'Technician') && request.status !== 'Completed' ? (
+                                        <div className="flex gap-2">
+                                            <Input
+                                                type="number"
+                                                className="h-8 bg-white dark:bg-slate-950"
+                                                placeholder="Nhập số tiền..."
+                                                value={estimatedCost}
+                                                onChange={(e) => setEstimatedCost(Number(e.target.value))}
+                                            />
+                                            <Button size="sm" onClick={handleSaveEstimate} disabled={loading}>Lưu</Button>
+                                        </div>
+                                    ) : (
+                                        <div className="text-lg font-bold text-blue-700 dark:text-blue-400">
+                                            {request.estimatedCost
+                                                ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(request.estimatedCost)
+                                                : "Chưa có"}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Admin Actions */}
                             {isAdmin && (request.status === 'New' || request.status === 'Pending_Approval') && (
                                 <>
@@ -167,12 +230,11 @@ export default function RequestDetailPage() {
                                 </>
                             )}
 
-                            {/* Completion Action (Admin or Clinic Owner can mark complete as per requirement) */}
-                            {/* "nhân viên phòng khám... được quyền chọn hoàn thành và nhập chi phí" */}
-                            {(isOwner || isAdmin) && (request.status === 'Approved' || request.status === 'In_Progress') && (
+                            {/* Completion Action */}
+                            {canComplete && (request.status === 'Approved' || request.status === 'In_Progress') && (
                                 <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={handleComplete}>
                                     <Save className="mr-2 h-4 w-4" />
-                                    Xác nhận & Nhập chi phí
+                                    Xác nhận & Hoàn thành
                                 </Button>
                             )}
 
@@ -186,7 +248,7 @@ export default function RequestDetailPage() {
                                         </div>
                                     </div>
 
-                                    {(isOwner || isAdmin) && (
+                                    {canComplete && (
                                         <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50" onClick={handleComplete}>
                                             <Save className="mr-2 h-4 w-4" />
                                             Cập nhật thông tin

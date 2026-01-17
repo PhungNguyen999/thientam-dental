@@ -16,18 +16,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Link as LinkIcon, Search, Filter } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { useState } from "react";
+import { DatePickerWithRange } from "@/components/DateRangePicker";
+import { DateRange } from "react-day-picker";
 
 export default function AdminRequestsPage() {
     const { requests, clinics } = useStore();
     const [filterText, setFilterText] = useState("");
     const [statusFilter, setStatusFilter] = useState("ALL");
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: undefined,
+        to: undefined,
+    });
 
     const filteredRequests = requests.filter(r => {
         const matchText = (r.id + r.equipmentName + r.requesterUsername).toLowerCase().includes(filterText.toLowerCase());
         const matchStatus = statusFilter === "ALL" || r.status === statusFilter;
-        return matchText && matchStatus;
+
+        let matchDate = true;
+        if (date?.from && date?.to) {
+            const reqDate = new Date(r.createDate);
+            matchDate = isWithinInterval(reqDate, {
+                start: startOfDay(date.from),
+                end: endOfDay(date.to)
+            });
+        } else if (date?.from) {
+            const reqDate = new Date(r.createDate);
+            matchDate = reqDate >= startOfDay(date.from);
+        }
+
+        return matchText && matchStatus && matchDate;
     });
 
     return (
@@ -76,6 +95,7 @@ export default function AdminRequestsPage() {
                                     <TableHead>Mã phiếu</TableHead>
                                     <TableHead>Phòng khám</TableHead>
                                     <TableHead>Thiết bị</TableHead>
+                                    <TableHead>Lý do hư hỏng</TableHead>
                                     <TableHead>Người yêu cầu</TableHead>
                                     <TableHead>Ngày tạo</TableHead>
                                     <TableHead>Trạng thái</TableHead>
@@ -95,6 +115,9 @@ export default function AdminRequestsPage() {
                                             </TableCell>
                                             <TableCell>{clinic?.name}</TableCell>
                                             <TableCell>{request.equipmentName}</TableCell>
+                                            <TableCell className="max-w-[200px] truncate" title={request.issueDescription}>
+                                                {request.issueDescription}
+                                            </TableCell>
                                             <TableCell>{request.requesterUsername}</TableCell>
                                             <TableCell>{format(new Date(request.createDate), 'dd/MM/yyyy')}</TableCell>
                                             <TableCell>

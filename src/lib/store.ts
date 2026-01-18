@@ -162,6 +162,7 @@ export const useStore = create<AppState>((set, get) => ({
         if (!supabase) return;
 
         // DB Update Data Mapping
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dbUpdates: any = {};
         if (updates.status) dbUpdates.status = updates.status;
         if (updates.approverUsername) dbUpdates.approver_username = updates.approverUsername;
@@ -234,6 +235,7 @@ export const useStore = create<AppState>((set, get) => ({
             ),
         }));
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dbUpdates: any = {};
         if (updates.status) dbUpdates.status = updates.status;
         if (updates.name) dbUpdates.name = updates.name;

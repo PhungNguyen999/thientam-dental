@@ -1,0 +1,105 @@
+﻿
+> thientam-dental@0.1.0 lint
+> eslint
+
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\app\(dashboard)\admin\page.tsx
+  13:10  warning  'Badge' is defined but never used     @typescript-eslint/no-unused-vars
+  31:46  warning  'parseISO' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\app\(dashboard)\admin\requests\page.tsx
+   4:41  warning  'CardTitle' is defined but never used            @typescript-eslint/no-unused-vars
+   4:52  warning  'CardDescription' is defined but never used      @typescript-eslint/no-unused-vars
+  21:10  warning  'DatePickerWithRange' is defined but never used  @typescript-eslint/no-unused-vars
+  28:18  warning  'setDate' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\app\(dashboard)\clinic\create-request\page.tsx
+  39:24  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\app\(dashboard)\clinic\create-request\page.tsx:39:24
+  37 |         // Create new request
+  38 |         const newRequest: RepairRequest = {
+> 39 |             id: `REQ-${Date.now().toString().slice(-6)}`,
+     |                        ^^^^^^^^^^ Cannot call impure function
+  40 |             createDate: new Date().toISOString(),
+  41 |             requesterUsername: currentUser.username,
+  42 |             clinicId: currentUser.clinicId!,  react-hooks/purity
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\AppSidebar.tsx
+  122:40  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  124:48  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  160:26  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\AppSidebar.tsx:160:26
+  158 |                     </SheetTrigger>
+  159 |                     <SheetContent side="left" className="p-0 bg-slate-50 dark:bg-slate-900 border-r-slate-200 dark:border-r-slate-800 w-72">
+> 160 |                         <SidebarContent />
+      |                          ^^^^^^^^^^^^^^ This component is created during render
+  161 |                     </SheetContent>
+  162 |                 </Sheet>
+  163 |                 <div className="ml-4 font-bold text-blue-900 dark:text-blue-100">Thientam Dental</div>
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\AppSidebar.tsx:93:28
+   91 |         ];
+   92 |
+>  93 |     const SidebarContent = () => (
+      |                            ^^^^^^^
+>  94 |         <div className="space-y-4 py-4 flex flex-col h-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  95 |             <div className="px-3 py-2 flex-1">
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 146 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |     );
+      | ^^^^^^ The component is created during render here
+  148 |
+  149 |     return (
+  150 |         <>  react-hooks/static-components
+  168:18  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\AppSidebar.tsx:168:18
+  166 |             {/* Desktop Sidebar */}
+  167 |             <div className="hidden md:flex h-full w-72 flex-col fixed inset-y-0 z-[80] bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
+> 168 |                 <SidebarContent />
+      |                  ^^^^^^^^^^^^^^ This component is created during render
+  169 |             </div>
+  170 |         </>
+  171 |     );
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\AppSidebar.tsx:93:28
+   91 |         ];
+   92 |
+>  93 |     const SidebarContent = () => (
+      |                            ^^^^^^^
+>  94 |         <div className="space-y-4 py-4 flex flex-col h-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  95 |             <div className="px-3 py-2 flex-1">
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 146 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 147 |     );
+      | ^^^^^^ The component is created during render here
+  148 |
+  149 |     return (
+  150 |         <>                                                                                                                      react-hooks/static-components
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\DateRangePicker.tsx
+  4:10  warning  'addDays' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\EquipmentDialog.tsx
+  121:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Github\App-tong-quan-trang-thiet-bi\thientam-dental\src\components\FileUploader.tsx
+  5:24  warning  'FileVideo' is defined but never used  @typescript-eslint/no-unused-vars
+  5:35  warning  'FileImage' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 15 problems (6 errors, 9 warnings)
+

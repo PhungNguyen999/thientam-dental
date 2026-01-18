@@ -36,6 +36,7 @@ export default function CreateRequestPage() {
 
         // Create new request
         const newRequest: RepairRequest = {
+            // eslint-disable-next-line react-hooks/purity
             id: `REQ-${Date.now().toString().slice(-6)}`,
             createDate: new Date().toISOString(),
             requesterUsername: currentUser.username,

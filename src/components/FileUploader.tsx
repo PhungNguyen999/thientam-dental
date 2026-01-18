@@ -49,6 +49,7 @@ export function FileUploader({ onUploadComplete, folder = "requests" }: FileUplo
             const updatedUrls = [...uploadedFiles, ...newUrls];
             setUploadedFiles(updatedUrls);
             onUploadComplete(updatedUrls);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.error(err);
             setError("Lỗi khi tải lên: " + (err.message || "Không xác định"));

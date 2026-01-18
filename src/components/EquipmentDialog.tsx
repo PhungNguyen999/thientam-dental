@@ -118,7 +118,7 @@ export function EquipmentDialog({ open, onOpenChange, initialData }: EquipmentDi
                                 <Label htmlFor="status" className="text-right">
                                     Trạng thái
                                 </Label>
-                                <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+                                <Select value={status} onValueChange={(v) => setStatus(v as Equipment['status'])}>
                                     <SelectTrigger className="col-span-3">
                                         <SelectValue placeholder="Trạng thái" />
                                     </SelectTrigger>

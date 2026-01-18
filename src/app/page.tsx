@@ -19,14 +19,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Simulate network delay for effect
-    setTimeout(() => {
-      const success = login(username);
+    try {
+      const success = await login(username);
 
       if (success) {
         const user = useStore.getState().currentUser;
@@ -39,7 +38,11 @@ export default function LoginPage() {
         setError("Tên đăng nhập hoặc mật khẩu không đúng.");
         setLoading(false);
       }
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      setError("Có lỗi xảy ra khi đăng nhập.");
+      setLoading(false);
+    }
   };
 
   return (

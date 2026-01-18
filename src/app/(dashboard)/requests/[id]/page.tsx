@@ -34,22 +34,25 @@ export default function RequestDetailPage() {
     const isOwner = currentUser.clinicId === request.clinicId;
     const canComplete = isAdmin || isOwner || currentUser.role === 'Technician';
 
-    const handleStatusChange = (newStatus: RepairStatus) => {
+    const handleStatusChange = async (newStatus: RepairStatus) => {
         setLoading(true);
-        setTimeout(() => {
-            updateRequest(id, {
+        try {
+            await updateRequest(id, {
                 status: newStatus,
                 approverUsername: newStatus === 'Approved' ? currentUser.username : request.approverUsername,
             });
             setLoading(false);
             router.refresh();
-        }, 500);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            setLoading(false);
+        }
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         setLoading(true);
-        setTimeout(() => {
-            updateRequest(id, {
+        try {
+            await updateRequest(id, {
                 status: 'Completed',
                 repairCost: Number(cost),
                 warrantyMonths: Number(warranty),
@@ -58,18 +61,24 @@ export default function RequestDetailPage() {
             });
             setLoading(false);
             router.push(isAdmin ? '/admin' : '/clinic');
-        }, 500);
+        } catch (error) {
+            console.error("Error completing request:", error);
+            setLoading(false);
+        }
     }
 
-    const handleSaveEstimate = () => {
+    const handleSaveEstimate = async () => {
         setLoading(true);
-        setTimeout(() => {
-            updateRequest(id, {
+        try {
+            await updateRequest(id, {
                 estimatedCost: Number(estimatedCost)
             });
             setLoading(false);
             router.refresh();
-        }, 500);
+        } catch (error) {
+            console.error("Error saving estimate:", error);
+            setLoading(false);
+        }
     };
 
     return (

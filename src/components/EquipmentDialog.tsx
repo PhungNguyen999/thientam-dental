@@ -36,7 +36,7 @@ export function EquipmentDialog({ open, onOpenChange, initialData }: EquipmentDi
     // Note: For simplicity in this non-controlled-form demo, we rely on the component remounting or manual reset if needed. 
     // In a real app, use useEffect to sync state with props if reusing the same mounted component.
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser?.clinicId) return;
 
@@ -44,10 +44,10 @@ export function EquipmentDialog({ open, onOpenChange, initialData }: EquipmentDi
 
         setLoading(true);
 
-        setTimeout(() => {
+        try {
             if (initialData) {
                 // Edit mode
-                updateEquipment(initialData.id, {
+                await updateEquipment(initialData.id, {
                     name,
                     model,
                     serialNumber: serial,
@@ -65,7 +65,7 @@ export function EquipmentDialog({ open, onOpenChange, initialData }: EquipmentDi
                     installDate,
                     status: "Active" // Default to active on creation usually
                 };
-                addEquipment(newEquip);
+                await addEquipment(newEquip);
             }
             setLoading(false);
             onOpenChange(false);
@@ -75,7 +75,10 @@ export function EquipmentDialog({ open, onOpenChange, initialData }: EquipmentDi
                 setModel("");
                 setSerial("");
             }
-        }, 500);
+        } catch (error) {
+            console.error("Error saving equipment:", error);
+            setLoading(false);
+        }
     };
 
     return (

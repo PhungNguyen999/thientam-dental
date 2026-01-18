@@ -26,7 +26,7 @@ export default function CreateRequestPage() {
     // Filter equipment for this clinic
     const myEquipment = equipment.filter(e => e.clinicId === currentUser?.clinicId);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser || !selectedEquipmentId) return;
 
@@ -49,12 +49,14 @@ export default function CreateRequestPage() {
             status: "New",
         };
 
-        // Simulate network
-        setTimeout(() => {
-            addRequest(newRequest);
+        try {
+            await addRequest(newRequest);
             setLoading(false);
             router.push("/clinic");
-        }, 500);
+        } catch (error) {
+            console.error("Failed to add request:", error);
+            setLoading(false);
+        }
     };
 
     return (
